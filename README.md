@@ -1,0 +1,2 @@
+# eddy
+A text editor.
