@@ -1,5 +1,6 @@
 {$mode objfpc}{$H+}
 program eddy;
+
 uses
     Classes, SysUtils;
 
@@ -9,8 +10,14 @@ var
     buffer: TStringList;
     valid_input: boolean;
 begin
-    WriteLn('Enter file name: ');
-    ReadLn(file_name);
+    if ParamCount < 1 then
+    begin
+        WriteLn('Usage: eddy <filename>');
+        WriteLn('Example: eddy document.txt');
+        Halt(1);
+    end;
+
+    file_name := ParamStr(1);
     
     if not FileExists(file_name) then
     begin
@@ -67,7 +74,7 @@ begin
         on E: Exception do
         begin
             WriteLn('Error: ', E.Message);
-            Halt(1);
+            Exit;
         end;
     end;
     
