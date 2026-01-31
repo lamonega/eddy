@@ -12,8 +12,8 @@ var
 begin
     if ParamCount < 1 then
     begin
-        WriteLn('Usage: eddy <filename>');
-        WriteLn('Example: eddy document.txt');
+        WriteLn('Usage:', ParamStr(0), ' <filename>');
+        WriteLn('Example: ', ParamStr(0), ' document.txt');
         Halt(1);
     end;
 
