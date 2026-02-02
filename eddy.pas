@@ -72,12 +72,11 @@ begin
         WriteLn('File saved successfully!');
     except
         on E: EFOpenError do
-            WriteLn('Error: Cannot open file - ', E.Message)
+            WriteLn('Error: Cannot open file - ', E.Message);
         on E: EInOutError do
-            WriteLn('Error: I/O error - ', E.Message)
+            WriteLn('Error: I/O error - ', E.Message);
         on E: Exception do
             WriteLn('Error: ', E.Message);
-        Exit;
     end;
     
     buffer.Free;
