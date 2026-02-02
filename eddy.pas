@@ -4,45 +4,30 @@ program eddy;
 uses
     Classes, SysUtils;
 
-var
-    file_name, line_to_add, input_str: string;
-    line_to_edit, error_code: integer;
-    buffer: TStringList;
-    valid_input: boolean;
+procedure loadFile (f: string);
 begin
-    if ParamCount < 1 then
-    begin
-        WriteLn('Usage: eddy <filename>');
-        WriteLn('Example: eddy document.txt');
-        Halt(1);
-    end;
-
-    file_name := ParamStr(1);
-    
-    if not FileExists(file_name) then
+    if not FileExists(f) then
     begin
         WriteLn('Error: File does not exist.');
         Halt(1);
     end;
-    
-    buffer := TStringList.Create;
-    try
-        buffer.LoadFromFile(file_name);
-        
-        if buffer.Count = 0 then
-        begin
-            WriteLn('Error: File is empty. No lines to edit.');
-            Exit;
-        end;
-        
-        WriteLn('File content:');
-        Write(buffer.Text);
-        WriteLn('Total lines: ', buffer.Count);
-        WriteLn;
-        
-        valid_input := false;
+end;
+
+function checkEmptyFile (f: string; b: TStringList): integer;
+begin
+    b.LoadFromFile(f);
+    checkEmptyFile := b.Count;
+end;
+
+function checkValidInputAndReturn(lc: integer): integer;
+var
+    input_str: string;
+    valid_input: boolean;
+    line_to_edit, error_code: integer;
+begin
+    valid_input := false;
         repeat
-            Write('Enter line number to edit (1 to ', buffer.Count, '): ');
+            Write('Enter line number to edit (1 to ', lc, '): ');
             ReadLn(input_str);
             
             input_str := Trim(input_str);
@@ -52,21 +37,58 @@ begin
             begin
                 WriteLn('Error: Please enter a valid number.');
             end
-            else if (line_to_edit < 1) or (line_to_edit > buffer.Count) then
+            else if (line_to_edit < 1) or (line_to_edit > lc) then
             begin
-                WriteLn('Error: Line number must be between 1 and ', buffer.Count, '.');
+                WriteLn('Error: Line number must be between 1 and ', lc, '.');
             end
             else
             begin
                 valid_input := true;
             end;
         until valid_input;
+    checkValidInputAndReturn := line_to_edit;
+end;
+
+procedure printFileContents(b: TStringList);
+begin
+    WriteLn('File content:');
+        Write(b.Text);
+        WriteLn('Total lines: ', b.Count);
+        WriteLn;
+end;
+
+procedure editFile(var b: TStringList; ln: integer; fn: string);
+var
+    l: string;
+begin
+        WriteLn('Enter new content for line ', ln, ': ');
+        ReadLn(l);
+        b[ln - 1] := l;
+        b.SaveToFile(fn);
+end;
+
+var
+    buffer: TStringList;
+begin
+    if ParamCount < 1 then
+    begin
+        WriteLn('Usage: eddy <filename>');
+        WriteLn('Example: eddy document.txt');
+        Halt(1);
+    end;
+    loadFile(ParamStr(1));
+
+    buffer:= TStringList.Create;
+    try
+        if checkEmptyFile(ParamStr(1), buffer) = 0 then
+        begin
+            WriteLn('Error: File is empty. No lines to edit.');
+            Exit;
+        end;
         
-        WriteLn('Enter new content for line ', line_to_edit, ': ');
-        ReadLn(line_to_add);
+        printFileContents(buffer);
         
-        buffer[line_to_edit - 1] := line_to_add;
-        buffer.SaveToFile(file_name);
+        editFile(buffer, checkValidInputAndReturn(buffer.Count), ParamStr(1));
         
         WriteLn;
         WriteLn('File saved successfully!');
